@@ -1,4 +1,6 @@
 import 'package:get_it/get_it.dart';
+import 'package:glimpse/features/friends/data/friends_service.dart';
+import 'package:glimpse/features/friends/data/friends_repository.dart';
 import 'package:glimpse/features/home/data/home_page_repository.dart';
 import 'package:glimpse/features/home/data/home_page_service.dart';
 import 'package:glimpse/features/posts/data/posts_repository.dart';
@@ -14,6 +16,7 @@ void setupServiceLocator() {
   getIt.registerLazySingleton<PostsService>(() => PostsService(baseUrl: ApiClient.baseUrl));
   getIt.registerLazySingleton<HomePageService>(() => HomePageService(baseUrl: ApiClient.baseUrl));
   getIt.registerLazySingleton<SettingsService>(() => SettingsService(baseUrl: ApiClient.baseUrl));
+  getIt.registerLazySingleton<FriendsService>(() => FriendsService(baseUrl: ApiClient.baseUrl));
 
   // Регистрация репозиториев
   getIt.registerLazySingleton<PostsRepository>(
@@ -24,6 +27,9 @@ void setupServiceLocator() {
   );
   getIt.registerLazySingleton<SettingsRepository>(
           () => SettingsRepository(settingsService: getIt<SettingsService>())
+  );
+  getIt.registerLazySingleton<FriendsRepository>(
+          () => FriendsRepository(friendsService: getIt<FriendsService>())
   );
 
   // Регистрация use cases

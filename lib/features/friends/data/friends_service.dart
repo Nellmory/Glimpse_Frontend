@@ -13,6 +13,10 @@ class FriendsService extends ApiService {
         'api/friends', {'user_id': userId, 'friend_id': friendId});
   }
 
+  Future<List<dynamic>> searchUsers(String query) async {
+    return await get('api/users/search?query=${Uri.encodeComponent(query)}');
+  }
+
   @override
   Future<dynamic> post(String endpoint, dynamic body) async {
     final token = await getToken();
@@ -29,6 +33,30 @@ class FriendsService extends ApiService {
       return jsonDecode(response.body);
     } else {
       throw Exception('Failed to post data to $endpoint. Status code: ${response.statusCode}, body: ${response.body}');
+    }
+  }
+
+  @override
+  Future<List<dynamic>> get(String endpoint) async {
+    final token = await getToken();
+    final response = await http.get(
+      Uri.parse('$baseUrl/$endpoint'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      if (response.statusCode != 400) {
+        throw Exception(
+            'Failed to load data from $endpoint. Status code: ${response
+                .statusCode}, body: ${response.body}');
+      } else {
+        return [jsonDecode(response.body)];
+      }
     }
   }
 }

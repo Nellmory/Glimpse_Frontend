@@ -6,11 +6,14 @@ import 'package:glimpse/features/common/data/api_client.dart';
 import 'package:glimpse/features/common/data/models.dart';
 import 'package:glimpse/features/common/domain/useful_methods.dart';
 import 'package:glimpse/features/home/domain/load_data.dart';
+import 'package:glimpse/features/home/domain/download_image.dart';
+import 'package:glimpse/features/home/domain/share_image.dart';
 import 'package:glimpse/features/home/domain/update_caption.dart';
 import 'package:glimpse/features/posts/domain/like_post.dart';
 import 'package:glimpse/features/profile_settings/view/settings_screen.dart';
 import 'package:glimpse/features/authentication/domain/token_manager.dart';
 import 'package:glimpse/features/home/domain/new_post_upload.dart';
+import 'package:glimpse/features/friends/view/search_screen.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:http/http.dart' as http;
@@ -36,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> implements UserAndPostState {
   }
 
   File? _image;
-  double _opacity = 0.5;
+  double _opacity = 0.7;
   final ImagePicker _picker = ImagePicker();
 
   Future<void> _loadData(bool start) async {
@@ -91,7 +94,7 @@ class _HomeScreenState extends State<HomeScreen> implements UserAndPostState {
         _loadData(false);
       } else {
         print('No image selected.');
-        _opacity = 0.5;
+        _opacity = 0.7;
       }
     });
   }
@@ -160,40 +163,102 @@ class _HomeScreenState extends State<HomeScreen> implements UserAndPostState {
 
     await showDialog(
       context: context,
+      barrierDismissible: true,
+      barrierColor: Colors.black.withValues(alpha: 0.7),
       builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: Colors.blueGrey[900],
-          title: Text(
-            'Изменить подпись',
-            style: TextStyle(color: Colors.white),
-          ),
-          content: TextField(
-            controller: captionController,
-            style: TextStyle(color: Colors.white),
-            decoration: InputDecoration(
-              hintText: 'Введите подпись...',
-              hintStyle: TextStyle(color: Colors.white70),
-              enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.blueGrey[200]!),
-              ),
-              focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.blueGrey[200]!),
-              ),
+        return Dialog(
+          backgroundColor: Colors.black,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+            side: BorderSide(
+              color: Colors.blueGrey[400]!,
+              width: 1.5,
             ),
           ),
-          actions: [
-            TextButton(
-              child: Text('Отмена', style: TextStyle(color: Colors.white)),
-              onPressed: () => Navigator.of(context).pop(),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Изменить подпись',
+                  style: TextStyle(
+                    color: Colors.blueGrey[200],
+                    fontFamily: "Playball",
+                    fontSize: 24,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 20),
+                TextField(
+                  controller: captionController,
+                  style: TextStyle(color: Colors.white),
+                  maxLength: 50,
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    labelText: 'Подпись к изображению',
+                    labelStyle: TextStyle(color: Colors.blueGrey[200]),
+                    hintText: 'Введите подпись...',
+                    hintStyle: TextStyle(color: Colors.blueGrey[600]),
+                    filled: true,
+                    fillColor: Colors.blueGrey[900],
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: BorderSide(color: Colors.blueGrey[400]!),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.blueGrey[400],
+                          padding: EdgeInsets.symmetric(vertical: 12),
+                          textStyle: TextStyle(
+                            fontSize: 16,
+                            fontFamily: "Raleway",
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        child: Text('Отмена'),
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          updatePostCaption(captionController.text, _post!, this);
+                          Navigator.of(context).pop();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blueGrey[700],
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(vertical: 12),
+                          textStyle: TextStyle(
+                            fontSize: 16,
+                            fontFamily: "Raleway",
+                            fontWeight: FontWeight.w600,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text('Сохранить'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-            TextButton(
-              child: Text('Сохранить', style: TextStyle(color: Colors.white)),
-              onPressed: () {
-                updatePostCaption(captionController.text, _post!, this);
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
+          ),
         );
       },
     );
@@ -208,10 +273,18 @@ class _HomeScreenState extends State<HomeScreen> implements UserAndPostState {
         backgroundColor: Colors.black,
         leading: Padding(
           padding: const EdgeInsets.only(left: 16.0),
-          child: Icon(
-            Icons.search,
-            color: Colors.blueGrey[200]!,
-            size: 32.0,
+          child: InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SearchScreen(user: _user!)),
+              );
+            },
+            child: Icon(
+              Icons.search,
+              color: Colors.blueGrey[200]!,
+              size: 32.0,
+            ),
           ),
         ),
         title: Row(
@@ -268,30 +341,34 @@ class _HomeScreenState extends State<HomeScreen> implements UserAndPostState {
                   children: [
                     Padding(
                       padding: EdgeInsets.only(top: 150.0),
-                      // Подстройте отступ по необходимости
                       child: Column(
                         children: [
-                          /*Image.asset(
-                            'assets/images/heart_empty.png',
-                            width: 42,
-                            height: 42,
-                          ),*/
                           Image.asset(
                             'assets/images/comments.png',
                             width: 38,
                             height: 38,
                           ),
                           SizedBox(height: 20),
-                          Image.asset(
-                            'assets/images/share.png',
-                            width: 35,
-                            height: 35,
+                          GestureDetector(
+                            onTap: _post != null
+                                ? () => shareImage(_postImage!)
+                                : null,
+                            child: Image.asset(
+                              'assets/images/share.png',
+                              width: 35,
+                              height: 35,
+                            ),
                           ),
                           SizedBox(height: 20),
-                          Image.asset(
-                            'assets/images/download.png',
-                            width: 33,
-                            height: 33,
+                          GestureDetector(
+                            onTap: _post != null
+                                ? () => downloadImage(context, _postImage!)
+                                : null,
+                            child: Image.asset(
+                              'assets/images/download.png',
+                              width: 33,
+                              height: 33,
+                            ),
                           ),
                           SizedBox(height: 5),
                         ],
@@ -351,7 +428,7 @@ class _HomeScreenState extends State<HomeScreen> implements UserAndPostState {
                   ],
                 ),
               ),
-              // Правая колонка с иконкой загрузки
+              // Правая колонка
               Container(
                 height: 316,
                 // Высота должна соответствовать высоте центральной колонки
