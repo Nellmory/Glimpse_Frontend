@@ -19,27 +19,27 @@ Mобильное приложение **Glimpse** позволяет польз
 
 ### Экран аутентификации
 
-![Auth](./readme-images/auth.jpg)
+<img src="./readme-images/auth.jpg" alt="Auth" height="400px" />
 
 ### Экран регистрации
 
-![registry](./readme-images/registry.jpg)
+<img src="./readme-images/registry.jpg" alt="registry" height="400px" />
 
 ### Главный экран
 
-![home](./readme-images/home.jpg)
+<img src="./readme-images/home.jpg" alt="home" height="400px" />
 
 ### Экран настроек
 
-![settings](./readme-images/settings.jpg)
+<img src="./readme-images/settings.jpg" alt="settings" height="400px" />
 
 ### Возможность изменить статус
 
-![status](./readme-images/status.jpg)
+<img src="./readme-images/status.jpg" alt="status" height="400px" />
 
 ### Демонстрация работы поиска
 
-![search](./readme-images/search.jpg)
+<img src="./readme-images/search.jpg" alt="search" height="400px" />
 
 ## Стек
 -   **Frontend:** [Flutter](https://flutter.dev/), [Dart](https://dart.dev/)
