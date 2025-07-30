@@ -1,17 +1,47 @@
 # Glimpse
 
-Coursework in the form of an Android application in Flutter.
-Nelly Agapova, VSU, Faculty of computer science.
+Mобильное приложение **Glimpse** позволяет пользователям делиться моментальными фотографиями без фильтров и эффектов, создавая атмосферу аутентичности и спонтанности в противовес культуре идеализированного контента. Приложение поощряет естественность, минимизирует социальное давление и возвращает радость от подлинного взаимодействия между людьми!
+## Содержание
+-   [Функциональность](#функциональность)
+-   [Экраны](#Экраны)
+-   [Стек технологий](#стек)
 
-## Getting Started
+## Функциональность
 
-This project is a starting point for a Flutter application.
+1. Создание ежедневной публикации через камеру устройства
+2. Добавление краткой подписи к фотографии
+3. Лайки и комментарии для выражения одобрения
+4. Сохранение и обмен публикациями
+5. Поиск других пользователей по никнейму
+6. Система взаимных подписок для формирования круга друзей
 
-A few resources to get you started if this is your first Flutter project:
+## Экраны
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+### Экран аутентификации
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+![Auth](./readme-images/auth.jpg)
+
+### Экран регистрации
+
+![registry](./readme-images/registry.jpg)
+
+### Главный экран
+
+![home](./readme-images/home.jpg)
+
+### Экран настроек
+
+![settings](./readme-images/settings.jpg)
+
+### Возможность изменить статус
+
+![status](./readme-images/status.jpg)
+
+### Демонстрация работы поиска
+
+![search](./readme-images/search.jpg)
+
+## Стек
+-   **Frontend:** [Flutter](https://flutter.dev/), [Dart](https://dart.dev/)
+-   **Backend:** [Python](https://www.python.org/), [Flask](https://flask.palletsprojects.com/en/stable/), [SQLAlchemy](https://www.sqlalchemy.org/), [JWT](https://www.jwt.io/)
+-   **Database:** [SQLite](https://www.sqlite.org/)
