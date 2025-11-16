@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:glimpse/features/authentication/data/authentication_repository.dart';
+import 'package:glimpse/features/authentication/view/authentication.dart';
 import 'package:glimpse/features/common/di/service_locator.dart';
 import 'package:glimpse/features/common/domain/useful_methods.dart';
 
@@ -20,6 +21,11 @@ Future<void> registry(BuildContext context, String email, String password, Strin
         final response = await _authenticationRepository.registry(email, password, username);
         if (response.containsKey('message') &&
             response['message'] == 'User registered successfully') {
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => Authentication()),
+                    (route) => false,
+            );
             showSuccess(context, "Регистрация прошла успешно. Войдите в свой аккаунт.");
         } else {
             // Обработка ошибок регистрации

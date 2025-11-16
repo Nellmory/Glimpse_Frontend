@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:glimpse/features/authentication/domain/registry.dart';
 import 'package:glimpse/features/common/domain/useful_methods.dart';
-import 'package:glimpse/features/home/view/home_screen.dart';
 
 
 class Registry extends StatefulWidget {
@@ -42,11 +41,6 @@ class _RegistryState extends State<Registry> {
 
     try {
       final doRegistry = await registry(context, email, password, username);
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => HomeScreen()),
-            (route) => false,
-      );
     } catch (error) {
       print("Error during registration: $error");
       showErrorMessage("Ошибка при подключении к серверу.", context);

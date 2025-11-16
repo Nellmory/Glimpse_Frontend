@@ -25,4 +25,14 @@ class FriendsRepository {
       throw Exception('Error getting user data: $e');
     }
   }
+
+  Future<List> getFriends(int userId) async {
+    try {
+      final List<dynamic> friends = await _friendsService.getFriends(userId);
+      return friends;
+    } catch (e) {
+      print('Error getting friends: $e');
+      throw Exception('Error getting friends: $e');
+    }
+  }
 }

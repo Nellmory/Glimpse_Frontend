@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:glimpse/features/common/data/api_client.dart';
+import 'package:glimpse/features/authentication/view/authentication.dart';
 import 'package:glimpse/features/common/data/models.dart';
 import 'package:glimpse/features/common/domain/useful_methods.dart';
 import 'package:glimpse/features/home/domain/load_data.dart';
@@ -551,29 +551,28 @@ class _FriendListState extends State<FriendList> {
   Future<void> _loadFriends() async {
     final token = await getToken();
     if (token != null) {
+      setState(() {
+        _isLoading = true;
+      });
       try {
-        // Use the passed userId instead of hardcoded one
-        final response = await http.get(
-          Uri.parse('${ApiClient.baseUrl}/api/friends/${widget.userId}'),
-          headers: {'Authorization': 'Bearer $token'},
-        );
-
-        if (response.statusCode == 200) {
-          final List<dynamic> friendsData = jsonDecode(response.body);
+        final List<dynamic> friendsData = await loadFriends(context, widget.userId);
           setState(() {
             _friends = friendsData.map((json) => User.fromJson(json)).toList();
             _isLoading = false;
           });
-        } else {
-          print('Failed to load friends: ${response.statusCode}');
-          showErrorMessage('Ошибка при загрузке списка друзей', context);
-        }
       } catch (e) {
         print('Error loading friends: $e');
         showErrorMessage('Ошибка при загрузке списка друзей: $e', context);
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
       }
     } else {
-      /// Handle no token case
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => Authentication()),
+      );
     }
   }
 

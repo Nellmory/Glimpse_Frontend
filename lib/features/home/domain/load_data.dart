@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:glimpse/features/friends/data/friends_repository.dart';
 import 'package:intl/intl.dart';
 import 'package:glimpse/features/authentication/domain/token_manager.dart';
 import 'package:glimpse/features/authentication/view/authentication.dart';
@@ -11,6 +13,7 @@ import 'package:glimpse/features/posts/data/posts_repository.dart';
 
 final HomePageRepository _homePageRepository = getIt<HomePageRepository>();
 final PostsRepository _postsRepository = getIt<PostsRepository>();
+final FriendsRepository _friendsRepository = getIt<FriendsRepository>();
 
 Future<void> loadUserData(BuildContext context,
     [UserAndPostState? state]) async {
@@ -78,6 +81,16 @@ Future<void> loadPostData(BuildContext context,
     print('Stack trace: $stackTrace');  // добавляем вывод stack trace
   } finally {
     state?.updateLoadingState(false);
+  }
+}
+
+Future<List<dynamic>> loadFriends(BuildContext context, int userId) async {
+  try {
+    final friends = await _friendsRepository.getFriends(userId);
+    return friends;
+  } catch (e) {
+    print('Error loading friends in loadFriends function: $e');
+    throw Exception('Failed to load friends: $e');
   }
 }
 

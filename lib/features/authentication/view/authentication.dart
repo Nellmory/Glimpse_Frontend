@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:glimpse/features/authentication/domain/login.dart';
 import 'package:glimpse/features/authentication/view/registry.dart';
-import 'package:glimpse/features/home/view/home_screen.dart';
 import 'package:glimpse/features/common/domain/useful_methods.dart';
 
 class Authentication extends StatefulWidget {
@@ -39,15 +38,10 @@ class _AuthenticationState extends State<Authentication> {
 
     try {
       final doLogin = await login(context, email, password);
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => HomeScreen()),
-        (route) => false,
-      );
     } catch (error) {
       print("Error during login: $error");
       showErrorMessage(
-          "Аккаунта не существует или проблемы с подключением к серверу",
+          "Аккаунта не существует или проблемы с подключением к серверу.",
           context);
     } finally {
       setState(() {

@@ -17,6 +17,10 @@ class FriendsService extends ApiService {
     return await get('api/users/search?query=${Uri.encodeComponent(query)}');
   }
 
+  Future<List<dynamic>> getFriends(int userId) async {
+    return await get('api/friends/$userId');
+  }
+
   @override
   Future<dynamic> post(String endpoint, dynamic body, {bool throwOnHttpError = true}) async {
     final token = await getToken();
