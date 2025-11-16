@@ -20,17 +20,21 @@ abstract class ApiService {
   }
 
   // Общая функция для POST запросов
-  Future<dynamic> post(String endpoint, dynamic body) async {
+  Future<dynamic> post(String endpoint, dynamic body, {bool throwOnHttpError = true}) async {
     final response = await http.post(
       Uri.parse('$baseUrl/$endpoint'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(body),
     );
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
+    if (response.statusCode >= 200 && response.statusCode < 300) {
       return jsonDecode(response.body);
     } else {
-      throw Exception('Failed to post data to $endpoint. Status code: ${response.statusCode}, body: ${response.body}');
+      if (throwOnHttpError) {
+        throw Exception('Failed to post data to $endpoint. Status code: ${response.statusCode}, body: ${response.body}');
+      } else {
+        return jsonDecode(response.body);
+      }
     }
   }
 

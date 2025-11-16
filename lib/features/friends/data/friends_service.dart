@@ -18,7 +18,7 @@ class FriendsService extends ApiService {
   }
 
   @override
-  Future<dynamic> post(String endpoint, dynamic body) async {
+  Future<dynamic> post(String endpoint, dynamic body, {bool throwOnHttpError = true}) async {
     final token = await getToken();
     final response = await http.post(
       Uri.parse('$baseUrl/$endpoint'),

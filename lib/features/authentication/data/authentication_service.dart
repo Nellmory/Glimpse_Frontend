@@ -5,9 +5,14 @@ class AuthenticationService extends ApiService {
 
   Future<Map<String, dynamic>> registry(
       String email, String password, String username) async {
-    return await post('api/registry',
-        {'email': email, 'password': password, 'username': username});
+    final response = await post(
+      'api/registry',
+      {'email': email, 'password': password, 'username': username},
+      throwOnHttpError: false,
+    );
+    return response as Map<String, dynamic>;
   }
+
 
   Future<Map<String, dynamic>> login(String email, String password) async {
     return await post('api/login', {'email': email, 'password': password});

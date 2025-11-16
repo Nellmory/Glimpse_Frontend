@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:glimpse/features/authentication/domain/token_manager.dart';
-import 'package:glimpse/features/authentication/view/authentication.dart';
 import 'package:glimpse/features/common/di/service_locator.dart';
 import 'package:glimpse/features/common/domain/useful_methods.dart';
 import 'package:glimpse/features/friends/data/friends_repository.dart';
-import 'package:glimpse/features/friends/domain/friend_entity.dart';
 
 final FriendsRepository _friendsRepository = getIt<FriendsRepository>();
 

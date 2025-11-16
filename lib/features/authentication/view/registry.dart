@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:glimpse/features/common/data/api_client.dart';
-import 'package:glimpse/features/authentication/view/authentication.dart';
+import 'package:glimpse/features/authentication/domain/registry.dart';
 import 'package:glimpse/features/common/domain/useful_methods.dart';
+import 'package:glimpse/features/home/view/home_screen.dart';
 
 
 class Registry extends StatefulWidget {
@@ -41,22 +41,12 @@ class _RegistryState extends State<Registry> {
     }
 
     try {
-      // Используйте ApiClient для вызова API регистрации
-      final response =
-          await ApiClient.authenticationService.registry(email, password, username);
-
-      if (response.containsKey('message') &&
-          response['message'] == 'User registered successfully') {
-        _showSuccess("Регистрация прошла успешно. Войдите в свой аккаунт.");
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => Authentication()),
-        );
-      } else {
-        // Обработка ошибок регистрации
-        showErrorMessage(
-            response['message'] ?? "Ошибка регистрации. Попробуйте еще раз.", context);
-      }
+      final doRegistry = await registry(context, email, password, username);
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => HomeScreen()),
+            (route) => false,
+      );
     } catch (error) {
       print("Error during registration: $error");
       showErrorMessage("Ошибка при подключении к серверу.", context);
@@ -65,15 +55,6 @@ class _RegistryState extends State<Registry> {
         _isLoading = false;
       });
     }
-  }
-
-  void _showSuccess(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.green,
-      ),
-    );
   }
 
   @override

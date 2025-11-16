@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:glimpse/features/common/data/api_client.dart';
+import 'package:glimpse/features/authentication/domain/login.dart';
 import 'package:glimpse/features/authentication/view/registry.dart';
 import 'package:glimpse/features/home/view/home_screen.dart';
-import 'package:glimpse/features/authentication/domain/token_manager.dart';
 import 'package:glimpse/features/common/domain/useful_methods.dart';
 
 class Authentication extends StatefulWidget {
@@ -39,28 +38,17 @@ class _AuthenticationState extends State<Authentication> {
     }
 
     try {
-      // Используйте ApiClient для вызова API
-      final response = await ApiClient.authenticationService.login(email, password);
-
-      if (response.containsKey('token')) {
-        // Аутентификация прошла успешно
-        final String token = response['token'];
-
-        // Сохранение токена
-        await saveToken(token);
-
-        // Переход на главный экран
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => HomeScreen()),
-              (route) => false,
-        );
-      } else {
-        showErrorMessage(response['error'] ?? "Неверная почта или пароль.", context);
-      }
+      final doLogin = await login(context, email, password);
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => HomeScreen()),
+        (route) => false,
+      );
     } catch (error) {
       print("Error during login: $error");
-      showErrorMessage("Аккаунта не существует или проблемы с подключением к серверу", context);
+      showErrorMessage(
+          "Аккаунта не существует или проблемы с подключением к серверу",
+          context);
     } finally {
       setState(() {
         _isLoading = false;
