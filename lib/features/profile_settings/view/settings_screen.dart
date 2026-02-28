@@ -6,7 +6,7 @@ import 'package:glimpse/features/common/di/service_locator.dart';
 import 'package:glimpse/features/authentication/domain/token_manager.dart';
 import 'package:glimpse/features/home/data/home_page_repository.dart';
 import 'package:glimpse/features/profile_settings/view/set_status_screen.dart';
-import 'package:glimpse/features/common/data/api_client.dart';
+import 'package:glimpse/features/common/providers/profile_pic_provider.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -27,16 +27,9 @@ class _SettingsState extends State<Settings> {
   bool _avatarUploading = false;
 
   static final _homeRepo = getIt<HomePageRepository>();
-  static const _baseUrl = ApiClient.baseUrl;
 
   String? get _avatarDisplayUrl =>
-      _profilePicUrl ?? _buildProfilePicUrl(widget.user.profilePic);
-
-  static String? _buildProfilePicUrl(String? relativeOrFull) {
-    if (relativeOrFull == null || relativeOrFull.isEmpty) return null;
-    if (relativeOrFull.startsWith('http')) return relativeOrFull;
-    return '$_baseUrl/images/$relativeOrFull';
-  }
+      _profilePicUrl ?? getProfilePicUrl(widget.user.profilePic);
 
   @override
   void initState() {
@@ -72,13 +65,13 @@ class _SettingsState extends State<Settings> {
     setState(() => _avatarUploading = true);
     try {
       final relativePath = await _homeRepo.uploadAvatar(widget.user.userId, croppedFile.path);
-      final newUrl = '$_baseUrl/images/$relativePath';
+      final newUrl = getProfilePicUrl(relativePath);
       if (mounted) {
         setState(() {
           _profilePicUrl = newUrl;
           _avatarUploading = false;
         });
-        widget.onAvatarUpdated?.call(newUrl);
+        if (newUrl != null) widget.onAvatarUpdated?.call(newUrl);
       }
     } catch (e) {
       if (mounted) {

@@ -16,6 +16,7 @@ import 'package:glimpse/features/home/domain/new_post_upload.dart';
 import 'package:glimpse/features/friends/view/search_screen.dart';
 import 'package:glimpse/features/friends/view/friend_post_screen.dart';
 import 'package:glimpse/features/common/di/service_locator.dart';
+import 'package:glimpse/features/common/providers/profile_pic_provider.dart';
 import 'package:glimpse/features/posts/data/posts_repository.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
@@ -321,9 +322,7 @@ class _HomeScreenState extends State<HomeScreen> implements UserAndPostState {
                     );
                   },
                   child: CircleAvatar(
-                    backgroundImage: _user?.profilePic != null
-                        ? NetworkImage(_user!.profilePic!)
-                        : const AssetImage('assets/images/user_icon.jpg'),
+                    backgroundImage: getProfilePicImageProvider(_user?.profilePic),
                     radius: 20,
                   ),
                 ),
@@ -653,9 +652,7 @@ class _FriendListState extends State<FriendList> {
     return ListTile(
       leading: CircleAvatar(
         backgroundColor: Colors.transparent,
-        backgroundImage: friend.profilePic != null
-            ? NetworkImage(friend.profilePic!)
-            : AssetImage('assets/images/user_icon.jpg') as ImageProvider,
+        backgroundImage: getProfilePicImageProvider(friend.profilePic),
         radius: 18,
       ),
       title: Text(friend.username,
