@@ -45,6 +45,8 @@ dependencies:
   cupertino_icons: ^1.0.8
   shared_preferences: ^2.2.2
   english_words: ^4.0.0
+  image: ^4.1.7
+  image_cropper: ^4.0.1
 
 dev_dependencies:
   flutter_test:

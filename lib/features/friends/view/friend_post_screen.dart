@@ -377,7 +377,7 @@ class _FriendPostScreenState extends State<FriendPostScreen> {
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Image.asset(
-                                'assets/images/share.png',
+                                'assets/images/send_comment.png',
                                 width: 36,
                                 height: 36,
                               ),

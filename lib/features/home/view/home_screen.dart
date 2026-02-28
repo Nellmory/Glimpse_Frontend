@@ -314,7 +314,10 @@ class _HomeScreenState extends State<HomeScreen> implements UserAndPostState {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => Settings(user: _user!)),
+                          builder: (context) => Settings(
+                          user: _user!,
+                          onAvatarUpdated: (newUrl) => setState(() => _user = _user!.copyWith(profilePic: newUrl)),
+                        )),
                     );
                   },
                   child: CircleAvatar(

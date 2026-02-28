@@ -26,4 +26,19 @@ class HomePageRepository {
       return null;
     }
   }
+
+  /// Загружает аватар; возвращает relative path profile_pic из ответа.
+  Future<String> uploadAvatar(int userId, String imageFilePath) async {
+    try {
+      final response = await _homePageService.uploadAvatar(userId, imageFilePath);
+      final path = response['profile_pic'] as String?;
+      if (path == null || path.isEmpty) {
+        throw Exception('No profile_pic in response');
+      }
+      return path;
+    } catch (e) {
+      print('Error uploading avatar: $e');
+      rethrow;
+    }
+  }
 }

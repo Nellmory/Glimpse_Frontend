@@ -22,6 +22,16 @@ class User {
       status: json['status'] as String,
     );
   }
+
+  User copyWith({String? profilePic}) {
+    return User(
+      userId: userId,
+      username: username,
+      email: email,
+      profilePic: profilePic ?? this.profilePic,
+      status: status,
+    );
+  }
 }
 
 abstract class UserAndPostState {

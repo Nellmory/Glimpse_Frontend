@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:glimpse/features/authentication/view/authentication.dart';
 import 'package:glimpse/features/common/data/models.dart';
+import 'package:glimpse/features/common/domain/useful_methods.dart';
+import 'package:glimpse/features/common/di/service_locator.dart';
 import 'package:glimpse/features/authentication/domain/token_manager.dart';
+import 'package:glimpse/features/home/data/home_page_repository.dart';
 import 'package:glimpse/features/profile_settings/view/set_status_screen.dart';
+import 'package:glimpse/features/common/data/api_client.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 
 class Settings extends StatefulWidget {
   final User user;
+  final void Function(String newProfilePicUrl)? onAvatarUpdated;
 
-  const Settings({Key? key, required this.user}) : super(key: key);
+  const Settings({Key? key, required this.user, this.onAvatarUpdated}) : super(key: key);
 
   @override
   _SettingsState createState() => _SettingsState();
@@ -16,6 +23,20 @@ class Settings extends StatefulWidget {
 class _SettingsState extends State<Settings> {
   late String _status;
   String _selectedLanguage = 'Русский';
+  String? _profilePicUrl;
+  bool _avatarUploading = false;
+
+  static final _homeRepo = getIt<HomePageRepository>();
+  static const _baseUrl = ApiClient.baseUrl;
+
+  String? get _avatarDisplayUrl =>
+      _profilePicUrl ?? _buildProfilePicUrl(widget.user.profilePic);
+
+  static String? _buildProfilePicUrl(String? relativeOrFull) {
+    if (relativeOrFull == null || relativeOrFull.isEmpty) return null;
+    if (relativeOrFull.startsWith('http')) return relativeOrFull;
+    return '$_baseUrl/images/$relativeOrFull';
+  }
 
   @override
   void initState() {
@@ -23,6 +44,40 @@ class _SettingsState extends State<Settings> {
     _status = widget.user.status.isEmpty
         ? 'Здесь пусто...Добавьте статус!'
         : widget.user.status;
+  }
+
+  Future<void> _changeAvatar() async {
+    if (_avatarUploading) return;
+    final picker = ImagePicker();
+    final xFile = await picker.pickImage(source: ImageSource.gallery);
+    if (xFile == null || !mounted) return;
+    final croppedFile = await ImageCropper().cropImage(
+      sourcePath: xFile.path,
+      aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+      compressQuality: 85,
+      compressFormat: ImageCompressFormat.jpg,
+    );
+    if (croppedFile == null || !mounted) return;
+    setState(() => _avatarUploading = true);
+    try {
+      final relativePath = await _homeRepo.uploadAvatar(widget.user.userId, croppedFile.path);
+      final newUrl = '$_baseUrl/images/$relativePath';
+      if (mounted) {
+        setState(() {
+          _profilePicUrl = newUrl;
+          _avatarUploading = false;
+        });
+        widget.onAvatarUpdated?.call(newUrl);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _avatarUploading = false);
+        showErrorMessage(
+          e.toString().contains('403') ? 'Нельзя изменить чужой аватар' : 'Ошибка загрузки аватарки',
+          context,
+        );
+      }
+    }
   }
 
   @override
@@ -51,15 +106,13 @@ class _SettingsState extends State<Settings> {
                 SizedBox(height: 20),
                 CircleAvatar(
                   radius: 60,
-                  backgroundImage: AssetImage('assets/images/user_icon.jpg'),
+                  backgroundImage: _avatarDisplayUrl != null
+                      ? NetworkImage(_avatarDisplayUrl!)
+                      : AssetImage('assets/images/user_icon.jpg') as ImageProvider,
                 ),
                 SizedBox(height: 10),
                 ElevatedButton(
-                  // Кнопка "Сменить аватарку"
-                  onPressed: () {
-                    // TODO: Implement change avatar functionality
-                    print('Сменить аватарку tapped');
-                  },
+                  onPressed: _avatarUploading ? null : _changeAvatar,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blueGrey[700],
                     // Цвет фона кнопки
@@ -73,7 +126,7 @@ class _SettingsState extends State<Settings> {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8)),
                   ),
-                  child: Text('Сменить аватарку'),
+                  child: Text(_avatarUploading ? 'Загрузка...' : 'Сменить аватарку'),
                 ),
                 SizedBox(height: 20),
                 Padding(
@@ -92,8 +145,7 @@ class _SettingsState extends State<Settings> {
                       SizedBox(height: 8),
                       GestureDetector(
                         onTap: () async {
-                          // Открываем экран изменения статуса
-                          final result = await Navigator.push(
+                          await Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => SetStatusScreen(
