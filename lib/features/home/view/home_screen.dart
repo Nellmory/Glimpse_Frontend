@@ -347,10 +347,31 @@ class _HomeScreenState extends State<HomeScreen> implements UserAndPostState {
                       padding: EdgeInsets.only(top: 150.0),
                       child: Column(
                         children: [
-                          Image.asset(
-                            'assets/images/comments.png',
-                            width: 38,
-                            height: 38,
+                          GestureDetector(
+                            onTap: () {
+                              if (_post == null) {
+                                showErrorMessage(
+                                  'Опубликуйте пост, чтобы смотреть комментарии к нему :)',
+                                  context,
+                                );
+                              } else {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => FriendPostScreen(
+                                      currentUser: _user!,
+                                      friend: _user!,
+                                      post: _post!,
+                                    ),
+                                  ),
+                                );
+                              }
+                            },
+                            child: Image.asset(
+                              'assets/images/comments.png',
+                              width: 38,
+                              height: 38,
+                            ),
                           ),
                           SizedBox(height: 20),
                           GestureDetector(

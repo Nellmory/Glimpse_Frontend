@@ -104,10 +104,31 @@ class PostsRepository {
 
   Future<void> unlikePost(int postId, int userId) async {
     try {
-      final response = await _postsService.unlikePost(postId, userId);
+      await _postsService.unlikePost(postId, userId);
     } catch (e) {
       print('Error unliking post in repository: $e');
       throw Exception('Error unliking post in repository: $e');
+    }
+  }
+
+  Future<List<Comment>> getPostComments(int postId) async {
+    try {
+      final List<dynamic> raw = await _postsService.getPostComments(postId);
+      return raw
+          .map((e) => Comment.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      print('Error getting post comments: $e');
+      throw Exception('Error getting post comments: $e');
+    }
+  }
+
+  Future<void> addComment(int postId, int userId, String text) async {
+    try {
+      await _postsService.addComment(postId, userId, text);
+    } catch (e) {
+      print('Error adding comment in repository: $e');
+      throw Exception('Error adding comment in repository: $e');
     }
   }
 }

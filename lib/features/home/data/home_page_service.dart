@@ -11,6 +11,10 @@ class HomePageService extends ApiService {
     return await get('api/user');
   }
 
+  Future<Map<String, dynamic>> getUserById(int userId) async {
+    return await get('api/users/$userId');
+  }
+
   @override
   Future<Map<String, dynamic>> get(String endpoint) async {
     final token = await getToken();
