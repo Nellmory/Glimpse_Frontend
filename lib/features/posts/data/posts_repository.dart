@@ -48,6 +48,16 @@ class PostsRepository {
     }
   }
 
+  Future<List<Post>> getFriendsPosts(int userId) async {
+    try {
+      final List<dynamic> raw = await _postsService.getFriendsPosts(userId);
+      return raw.map((e) => Post.fromJson(e as Map<String, dynamic>)).toList();
+    } catch (e) {
+      print('Error getting friends posts: $e');
+      throw Exception('Error getting friends posts: $e');
+    }
+  }
+
   Future<File> getImageAsFile(String imagePath) async {
     final Uint8List bytes = await _postsService.getImage(imagePath);
 

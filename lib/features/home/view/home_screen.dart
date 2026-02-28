@@ -14,6 +14,10 @@ import 'package:glimpse/features/profile_settings/view/settings_screen.dart';
 import 'package:glimpse/features/authentication/domain/token_manager.dart';
 import 'package:glimpse/features/home/domain/new_post_upload.dart';
 import 'package:glimpse/features/friends/view/search_screen.dart';
+import 'package:glimpse/features/friends/view/friend_post_screen.dart';
+import 'package:glimpse/features/common/di/service_locator.dart';
+import 'package:glimpse/features/posts/data/posts_repository.dart';
+import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:http/http.dart' as http;
@@ -484,7 +488,7 @@ class _HomeScreenState extends State<HomeScreen> implements UserAndPostState {
           if (_user != null)
             Expanded(
               child: _user != null
-                  ? FriendList(userId: _user!.userId)
+                  ? FriendList(userId: _user!.userId, currentUser: _user!)
                   : Center(child: Text('Загрузка данных пользователя...')),
             ),
           if (_user == null)
@@ -531,8 +535,9 @@ class _HomeScreenState extends State<HomeScreen> implements UserAndPostState {
 
 class FriendList extends StatefulWidget {
   final int userId;
+  final User currentUser;
 
-  FriendList({required this.userId});
+  FriendList({required this.userId, required this.currentUser});
 
   @override
   _FriendListState createState() => _FriendListState();
@@ -540,15 +545,16 @@ class FriendList extends StatefulWidget {
 
 class _FriendListState extends State<FriendList> {
   List<User> _friends = [];
+  Map<int, Post> _friendToLatestTodayPost = {};
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadFriends();
+    _loadFriendsAndPosts();
   }
 
-  Future<void> _loadFriends() async {
+  Future<void> _loadFriendsAndPosts() async {
     final token = await getToken();
     if (token != null) {
       setState(() {
@@ -556,14 +562,28 @@ class _FriendListState extends State<FriendList> {
       });
       try {
         final List<dynamic> friendsData = await loadFriends(context, widget.userId);
-          setState(() {
-            _friends = friendsData.map((json) => User.fromJson(json)).toList();
-            _isLoading = false;
-          });
+        final friends = friendsData.map((json) => User.fromJson(json)).toList();
+
+        final now = DateTime.now();
+        final todayStr = DateFormat('yyyy-MM-dd').format(now);
+        final allFriendsPosts = await getIt<PostsRepository>().getFriendsPosts(widget.userId);
+        final todayPosts = allFriendsPosts.where((p) =>
+            DateFormat('yyyy-MM-dd').format(p.timestamp) == todayStr).toList();
+        final Map<int, Post> friendToPost = {};
+        for (var p in todayPosts) {
+          if (!friendToPost.containsKey(p.userId)) {
+            friendToPost[p.userId] = p;
+          }
+        }
+
+        setState(() {
+          _friends = friends;
+          _friendToLatestTodayPost = friendToPost;
+          _isLoading = false;
+        });
       } catch (e) {
         print('Error loading friends: $e');
         showErrorMessage('Ошибка при загрузке списка друзей: $e', context);
-      } finally {
         setState(() {
           _isLoading = false;
         });
@@ -603,6 +623,9 @@ class _FriendListState extends State<FriendList> {
   }
 
   Widget _buildFriendRow(User friend) {
+    final hasPostToday = _friendToLatestTodayPost.containsKey(friend.userId);
+    final post = _friendToLatestTodayPost[friend.userId];
+
     return ListTile(
       leading: CircleAvatar(
         backgroundColor: Colors.transparent,
@@ -611,17 +634,35 @@ class _FriendListState extends State<FriendList> {
             : AssetImage('assets/images/user_icon.jpg') as ImageProvider,
         radius: 18,
       ),
-      title: Text(friend.username ?? 'Unknown',
+      title: Text(friend.username,
           style: TextStyle(
               fontSize: 18.0,
               color: Colors.white,
               fontFamily: "Raleway",
               fontWeight: FontWeight.w600)),
-      trailing: CircleAvatar(
-        backgroundColor: Colors.transparent,
-        backgroundImage: AssetImage('assets/images/bell.png'),
-        radius: 18,
-      ),
+      trailing: hasPostToday
+          ? GestureDetector(
+              onTap: () {
+                if (post != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => FriendPostScreen(
+                        currentUser: widget.currentUser,
+                        friend: friend,
+                        post: post,
+                      ),
+                    ),
+                  );
+                }
+              },
+              child: CircleAvatar(
+                backgroundColor: Colors.transparent,
+                backgroundImage: AssetImage('assets/images/bell.png'),
+                radius: 18,
+              ),
+            )
+          : SizedBox(width: 36, height: 36),
     );
   }
 }
