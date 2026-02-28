@@ -30,7 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  http: ^0.13.6
+  http: ^1.2.0
   image_picker: ^0.8.0
   get_it: ^7.6.0
   intl: ^0.20.2
@@ -46,7 +46,7 @@ dependencies:
   shared_preferences: ^2.2.2
   english_words: ^4.0.0
   image: ^4.1.7
-  image_cropper: ^4.0.1
+  image_cropper: ^11.0.0
 
 dev_dependencies:
   flutter_test:
