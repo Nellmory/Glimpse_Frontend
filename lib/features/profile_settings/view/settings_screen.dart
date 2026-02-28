@@ -51,12 +51,23 @@ class _SettingsState extends State<Settings> {
     final picker = ImagePicker();
     final xFile = await picker.pickImage(source: ImageSource.gallery);
     if (xFile == null || !mounted) return;
-    final croppedFile = await ImageCropper().cropImage(
-      sourcePath: xFile.path,
-      aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
-      compressQuality: 85,
-      compressFormat: ImageCompressFormat.jpg,
-    );
+    CroppedFile? croppedFile;
+    try {
+      croppedFile = await ImageCropper().cropImage(
+        sourcePath: xFile.path,
+        aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+        compressQuality: 85,
+        compressFormat: ImageCompressFormat.jpg,
+      );
+    } catch (e) {
+      if (mounted) {
+        showErrorMessage(
+          'Не удалось открыть обрезку. Проверьте настройки приложения.',
+          context,
+        );
+      }
+      return;
+    }
     if (croppedFile == null || !mounted) return;
     setState(() => _avatarUploading = true);
     try {
