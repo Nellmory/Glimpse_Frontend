@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:glimpse/features/common/data/models.dart';
 import 'package:glimpse/features/common/domain/useful_methods.dart';
 import 'package:glimpse/features/common/di/service_locator.dart';
+import '../../common/providers/profile_pic_provider.dart';
 import 'package:glimpse/features/home/data/home_page_repository.dart';
 import 'package:glimpse/features/home/domain/load_data.dart';
 import 'package:glimpse/features/posts/data/posts_repository.dart';
@@ -290,7 +291,7 @@ class _FriendPostScreenState extends State<FriendPostScreen> {
                                   : (author?.username ?? 'Пользователь');
                               final timeStr = DateFormat('HH:mm, dd.MM').format(c.timestamp);
                               final avatarProvider = author?.profilePic != null
-                                  ? NetworkImage(author!.profilePic!) as ImageProvider
+                                  ? NetworkImage(getProfilePicUrl(author!.profilePic)!) as ImageProvider
                                   : AssetImage('assets/images/user_icon.jpg') as ImageProvider;
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
